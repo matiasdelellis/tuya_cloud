@@ -6,6 +6,7 @@ namespace OCA\TuyaCloud\Settings;
 use OCA\TuyaCloud\AppInfo\Application;
 use OCA\TuyaCloud\Service\TuyaCloudService;
 use OCA\TuyaCloud\Exceptions\AuthFailedException;
+use OCA\TuyaCloud\Exceptions\QueryFailedException;
 
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\Settings\ISettings;
@@ -80,11 +81,16 @@ class Personal implements ISettings {
 			$hasConnection = $this->service->hasConnection($this->userId);
 			$devicesCount = count($this->service->getDevices($this->userId));
 			$errorMsg = '';
+		} catch (QueryFailedException $e) {
+			$hasConnection = false;
+			$devicesCount = 0;
+			$errorMsg = $e->getMessage();
 		} catch (AuthFailedException $e) {
 			$hasConnection = false;
 			$devicesCount = 0;
 			$errorMsg = $e->getMessage();
 		}
+
 		$this->initialState->provideInitialState(
 			'has_connection',
 			$hasConnection

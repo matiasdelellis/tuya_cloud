@@ -184,8 +184,10 @@ class TuyaCloudService {
 		));
 
 		$response = curl_exec($ch);
-		$tokens = json_decode($response);
+		if ($response === false)
+			throw new QueryFailedException(curl_error($ch));
 
+		$tokens = json_decode($response);
 		if (@$tokens->responseStatus === "error") {
 			throw new AuthFailedException($tokens->errorMsg);
 		}
