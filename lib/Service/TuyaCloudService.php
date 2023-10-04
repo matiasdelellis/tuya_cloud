@@ -149,7 +149,8 @@ class TuyaCloudService {
 
 	private function getBaseUrl(string $userId): string
 	{
-		$region = $this->config->getUserValue($userId, 'tuya_cloud', 'region', null);
+		// TODO: Use the first two letters of the access token to determine the correct region.
+		$region = $this->config->getUserValue($userId, 'tuya_cloud', 'region', 'us');
 		return 'https://px1.tuya' . $region . '.com/homeassistant';
 	}
 
@@ -159,7 +160,6 @@ class TuyaCloudService {
 		$password    = $this->config->getUserValue($userId, 'tuya_cloud', 'password', null);
 		$bizType     = $this->config->getUserValue($userId, 'tuya_cloud', 'biz_type', null);
 		$countryCode = $this->config->getUserValue($userId, 'tuya_cloud', 'country_code', null);
-		$region      = $this->config->getUserValue($userId, 'tuya_cloud', 'region', null);
 		// TODO: Validate these
 
 		$access_token = $this->cache->get($userId . ':access_token');
@@ -174,7 +174,6 @@ class TuyaCloudService {
 				"password"    => $password,
 				"bizType"     => $bizType,
 				"countryCode" => $countryCode,
-				"region"      => $region,
 				"from"        => 'tuya'
 			])
 		);

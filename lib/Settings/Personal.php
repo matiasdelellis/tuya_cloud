@@ -72,10 +72,6 @@ class Personal implements ISettings {
 			'country_code',
 			$this->config->getUserValue($this->userId, 'tuya_cloud', 'country_code', null)
 		);
-		$this->initialState->provideInitialState(
-			'region',
-			$this->config->getUserValue($this->userId, 'tuya_cloud', 'region', null)
-		);
 
 		try {
 			$hasConnection = $this->service->hasConnection($this->userId);

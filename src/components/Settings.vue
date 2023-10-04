@@ -44,14 +44,6 @@
 			    :label-visible="true"
 			    :maxlength="3"
 			    @update:value="onChange"/>
-			<NcTextField
-			    :label="t('tuya_cloud', 'Region')"
-			    :placeholder="t('tuya_cloud', 'Region to connect the API (az=Americas, ay=Asia, eu=Europe, us=North America)')"
-			    :value.sync="region"
-			    type="text"
-			    :label-visible="true"
-			    :maxlength="2"
-			    @update:value="onChange"/>
 			<NcNoteCard type="error" v-if="errorMsg">
 				<p>{{ errorMsg }}</p>
 			</NcNoteCard>
@@ -94,7 +86,6 @@ export default {
 			password: loadState('tuya_cloud', 'password'),
 			bizType: loadState('tuya_cloud', 'biz_type'),
 			countryCode: loadState('tuya_cloud', 'country_code'),
-			region: loadState('tuya_cloud', 'region'),
 			hasConnection: loadState('tuya_cloud', 'has_connection'),
 			devicesCount: loadState('tuya_cloud', 'devices_count'),
 			errorMsg: loadState('tuya_cloud', 'error_msg')
@@ -126,8 +117,6 @@ export default {
 				this.errorMsg = t('tuya_cloud', 'The account type of must be tuya or smart_life')
 			else if (this.countryCode.length === 0)
 				this.errorMsg = t('tuya_cloud', 'The country code must be a number')
-			else if (!['az', 'ay', 'eu', 'us'].includes(this.region))
-				this.errorMsg = t('tuya_cloud', 'The region to connect the API must be az, ay, eu or us')
 			else
 				this.errorMsg = null
 
@@ -141,8 +130,7 @@ export default {
 						username: this.username,
 						password: this.password,
 						biz_type: this.bizType,
-						country_code: this.countryCode,
-						region: this.region
+						country_code: this.countryCode
 					}
 				}
 			)
