@@ -10,17 +10,12 @@ use OCP\App\IAppManager;
 use OCP\ICache;
 use OCP\ICacheFactory;
 use OCP\IConfig;
-use OCP\IL10N;
 use OCP\ILogger;
-use OCP\IUserManager;
 
 class TuyaCloudService {
 
 	/** @var IConfig */
 	private $config;
-
-	/** @var IL10N */
-	private $l10n;
 
 	/** @var ILogger */
 	private $logger;
@@ -28,28 +23,28 @@ class TuyaCloudService {
 	/** @var ICache */
 	private $cache;
 
-	/** @var string */
-	private $userId;
-
 	public function __construct(
 		IConfig $config,
-		IL10N $l10n,
 		ILogger $logger,
 		ICacheFactory $cacheFactory,
-		string $userId
 	) {
 		$this->config = $config;
-		$this->userId = $userId;
-		$this->l10n   = $l10n;
 		$this->logger = $logger;
 		$this->cache  = $cacheFactory->createDistributed(Application::APP_ID);
 	}
 
-
+	/**
+	 * Checks if exists a valid access token in cache or try to
+	 * obtain it with the access settings.
+	 */
 	public function hasConnection(string $userId) {
-		return strlen($this->getAccessToken($this->userId)) > 0;
+		return strlen($this->getAccessToken($userId)) > 0;
 	}
 
+	/**
+	 * Removee all cached information, and force reconnection with
+	 * the access settings.
+	 */
 	public function forceReconnect(string $userId) {
 		$this->cache->remove($userId . ':access_token');
 		$this->cache->remove($userId . ':skills');
@@ -75,7 +70,7 @@ class TuyaCloudService {
 			]
 		];
 
-		$payload = $this->query($this->getBaseUrl() . '/skill', 'GET', $body);
+		$payload = $this->query($this->getBaseUrl($userId) . '/skill', 'GET', $body);
 
 		$this->cache->set($userId . ':skills', json_encode($payload->devices), 1020);
 
@@ -87,7 +82,7 @@ class TuyaCloudService {
 	 * NOTE: Once in 1020 seconds
 	 */
 	public function getDevices(string $userId) {
-		$skills = $this->getSkills($this->userId);
+		$skills = $this->getSkills($userId);
 		$devices = array_filter($skills, function($skill) {
 			return $skill->dev_type !== 'scene';
 		});
@@ -123,7 +118,7 @@ class TuyaCloudService {
 			]
 		];
 
-		$payload = $this->query($this->getBaseUrl() . '/skill', 'GET', $body);
+		$payload = $this->query($this->getBaseUrl($userId) . '/skill', 'GET', $body);
 		return $payload->devices;
 	}
 
@@ -147,14 +142,14 @@ class TuyaCloudService {
 			]
 		];
 
-		$applied = $this->query($this->getBaseUrl() . '/skill', 'POST', $body);
+		$applied = $this->query($this->getBaseUrl($userId) . '/skill', 'POST', $body);
 		// TODO: Update local cache
 		return $applied;
 	}
 
-	private function getBaseUrl(): string
+	private function getBaseUrl(string $userId): string
 	{
-		$region = $this->config->getUserValue($this->userId, 'tuya_cloud', 'region', null);
+		$region = $this->config->getUserValue($userId, 'tuya_cloud', 'region', null);
 		return 'https://px1.tuya' . $region . '.com/homeassistant';
 	}
 
@@ -171,7 +166,7 @@ class TuyaCloudService {
 		if ($access_token != null)
 			return $access_token;
 
-		$ch = curl_init($this->getBaseUrl() . "/auth.do");
+		$ch = curl_init($this->getBaseUrl($userId) . "/auth.do");
 		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
 		curl_setopt($ch, CURLOPT_POSTFIELDS,
 			http_build_query([
