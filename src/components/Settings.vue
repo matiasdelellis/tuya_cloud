@@ -135,16 +135,22 @@ export default {
 				}
 			)
 			.then((response) => {
-				this.devicesCount = response.devices_count
-				this.hasConnection = response.has_connection
-				this.errorMsg = response.error_msg
+				this.devicesCount = response.data.devices_count
+				this.hasConnection = response.data.has_connection
+				this.errorMsg = response.data.error_msg
 
-				showSuccess(t('tuya_cloud', 'Tuya Cloud Account saved'))
+				if (this.errorMsg.length > 0)
+					showError(
+					    t('tuya_cloud', 'Could not connect with new Tuya Cloud account')
+					    + ': ' + this.errorMsg
+					)
+				else
+					showSuccess(t('tuya_cloud', 'Tuya Cloud account saved'))
 			})
 			.catch((error) => {
 				console.error(error)
 				showError(
-					t('tuya_cloud', 'Failed to save Tuya Cloud Account')
+					t('tuya_cloud', 'Failed to save Tuya Cloud account')
 					+ ': ' + error.response.request.responseText
 				)
 			})
