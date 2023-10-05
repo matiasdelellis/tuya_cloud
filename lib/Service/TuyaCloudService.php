@@ -55,6 +55,10 @@ class TuyaCloudService {
 	 * NOTE: Once in 1020 seconds
 	 */
 	public function getSkills(string $userId) {
+		$accessToken = $this->getAccessToken($userId);
+		if (!$accessToken)
+			return [];
+
 		$skills = $this->cache->get($userId . ':skills');
 		if ($skills !== null)
 			return json_decode($skills);
@@ -66,7 +70,7 @@ class TuyaCloudService {
 				"payloadVersion" => 1
 			],
 			"payload" => [
-				"accessToken" => $this->getAccessToken($userId)
+				"accessToken" => $accessToken
 			]
 		];
 
@@ -149,22 +153,45 @@ class TuyaCloudService {
 
 	private function getBaseUrl(string $userId): string
 	{
-		// TODO: Use the first two letters of the access token to determine the correct region.
-		$region = $this->config->getUserValue($userId, 'tuya_cloud', 'region', 'us');
-		return 'https://px1.tuya' . $region . '.com/homeassistant';
+		$region = $this->getRegion($userId);
+		return "https://px1.tuya{$region}.com/homeassistant";
 	}
 
-	private function getAccessToken(string $userId): string
+	private function getRegion(string $userId): string
 	{
+		if (!$this->hasAccessToken($userId))
+			return $this->config->getUserValue($userId, 'tuya_cloud', 'region', 'us');
+
+		$token = $this->getAccessToken($userId);
+		$prefix = substr($token, 0, 2);
+		switch ($prefix) {
+			case 'AY': $region = 'cn'; break;
+			case 'EU': $region = 'eu'; break;
+			case 'US':
+			default: $region = 'us'; break;
+		}
+		return $region;
+	}
+
+	private function hasAccessToken(string $userId): bool
+	{
+		return $this->cache->get($userId . ':access_token') !== null;
+	}
+
+	private function getAccessToken(string $userId): ?string
+	{
+		$access_token = $this->cache->get($userId . ':access_token');
+		if ($access_token != null)
+			return $access_token;
+
 		$userName    = $this->config->getUserValue($userId, 'tuya_cloud', 'username', null);
 		$password    = $this->config->getUserValue($userId, 'tuya_cloud', 'password', null);
 		$bizType     = $this->config->getUserValue($userId, 'tuya_cloud', 'biz_type', null);
 		$countryCode = $this->config->getUserValue($userId, 'tuya_cloud', 'country_code', null);
-		// TODO: Validate these
 
-		$access_token = $this->cache->get($userId . ':access_token');
-		if ($access_token != null)
-			return $access_token;
+		// TODO: How to validate it better?
+		if (!$userName || $password || !$bizType || !$countryCode)
+			return null;
 
 		$ch = curl_init($this->getBaseUrl($userId) . "/auth.do");
 		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
