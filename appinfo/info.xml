@@ -12,7 +12,12 @@ The Tuya integration integrates all Powered by Tuya devices you have added to th
 	<author mail="mati86dl@gmail.com">Matias De lellis</author>
 	<namespace>TuyaCloud</namespace>
 	<category>integration</category>
-	<screenshot></screenshot>
+	<website>https://github.com/matiasdelellis/tuya_cloud</website>
+	<bugs>https://github.com/matiasdelellis/tuya_cloud/issues</bugs>
+	<repository>https://github.com/matiasdelellis/tuya_cloud</repository>
+	<screenshot>https://services.delellis.com.ar/data/tuya_cloud/doc/Screenshot-Personal-settings.png</screenshot>
+	<screenshot>https://services.delellis.com.ar/data/tuya_cloud/doc/Screenshot-Dashboard.png</screenshot>
+	<screenshot>https://services.delellis.com.ar/data/tuya_cloud/doc/Screenshot-Dashboard-Activating.png</screenshot>
 	<dependencies>
 		<nextcloud min-version="27" max-version="27"/>
 	</dependencies>
