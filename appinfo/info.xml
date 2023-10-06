@@ -7,7 +7,7 @@
 <description><![CDATA[
 The Tuya integration integrates all Powered by Tuya devices you have added to the Tuya Smart and Tuya Smart Life apps.
 ]]></description>
-	<version>0.0.2</version>
+	<version>0.0.4</version>
 	<licence>agpl</licence>
 	<author mail="mati86dl@gmail.com">Matias De lellis</author>
 	<namespace>TuyaCloud</namespace>
