@@ -190,7 +190,7 @@ class TuyaCloudService {
 		$countryCode = $this->config->getUserValue($userId, 'tuya_cloud', 'country_code', null);
 
 		// TODO: How to validate it better?
-		if (!$userName || $password || !$bizType || !$countryCode)
+		if (!$userName || !$password || !$bizType || !$countryCode)
 			return null;
 
 		$ch = curl_init($this->getBaseUrl($userId) . "/auth.do");
